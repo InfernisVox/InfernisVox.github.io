@@ -1,5 +1,4 @@
 $(document).ready(function () {
-	console.log("e");
 	var promise = new Promise(function (resolve, reject) {
 		$.getJSON("../../datasets/sortedwines.json", function (data) {
 			resolve(data);
@@ -20,7 +19,7 @@ $(document).ready(function () {
 
 function winesByCountryAndVariety(winedata) {
 	var winesByVariety = {};
-	var winevarietys = {};
+	var winevarietys = [];
 
 	// iterate over all wines and calculate the average values for each variety for each country
 	winedata.forEach(function (wine) {
@@ -30,7 +29,19 @@ function winesByCountryAndVariety(winedata) {
 		var fruitiness = wine.fruitiness;
 		var herbalCount = 0;
 		var fruityCount = 0;
-		//if variety is not in winevarietys add it to winevarietys
+
+		if (!winevarietys.includes(variety)) {
+			var varietyCount = 0;
+			for (var i = 0; i < winedata.length; i++) {
+				if (winedata[i].variety === variety) {
+					varietyCount++;
+					if (varietyCount >= 10) {
+						winevarietys.push(variety);
+						break;
+					}
+				}
+			}
+		}
 
 		if (!winesByVariety[country]) {
 			winesByVariety[country] = {};
@@ -97,4 +108,55 @@ function winesByCountryAndVariety(winedata) {
 	}
 
 	console.log(winesByVariety);
+	console.log(winevarietys);
+
+	$.each(winevarietys, function (index, value) {
+		let append;
+		$(winevarietys[value]).each(function (index, value) {});
+
+		// p emement
+		append = $("<p></p>");
+		append.text(value);
+
+		// move down on the y axis by 40px
+		append.css({
+			position: "relative",
+			left: "0px",
+			top: "0px",
+			transform: "translateY(100px)",
+		});
+
+		$("body").append(append);
+	});
+
+	// create a container element to hold the <p> elements
+	let container = $("<div></div>");
+
+	$.each(winesByVariety, function (index, value) {
+		let append;
+
+		// create the <p> element
+		append = $("<p></p>");
+		append.text(index);
+
+		// append the <p> element to the container
+		container.append(append);
+	});
+
+	// apply CSS properties to the container element
+	// let the elements that are not on the screens be visible by scrolling to the x axis
+	container.css({
+		display: "flex",
+		justifyContent: "space-between",
+		transform: " ",
+		position: "absolute",
+		top: "0px",
+		right: "0px",
+		textOrientation: "upright",
+		whiteSpace: "nowrap",
+		overflowX: "auto",
+	});
+
+	// append the container to the body
+	$("body").append(container);
 }
