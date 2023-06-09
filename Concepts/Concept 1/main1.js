@@ -11,10 +11,11 @@ $(document).ready(function () {
 		.then(function (winedata) {
 			let winesByVariety = {};
 			let winevarietys = [];
+			let filteroption = filter(winesByVariety, winevarietys);
 
 			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
-			filter(winesByVariety, winevarietys);
-			draw(winesByVariety, winevarietys);
+			filter(winesByVariety, winevarietys, filteroption);
+			draw(winesByVariety, winevarietys, filteroption);
 		})
 		.catch(function (error) {
 			console.log("fail " + error);
@@ -155,8 +156,8 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 
 function filter(winesByVariety, winevarietys) {
 	let heading = $("<h1></h1>");
-	let optionlist = ["Points", "Price", "Production"];
-	let filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
+	let optionlist = ["Points.", "Price.", "Production."];
+	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 	let previousOption = ""; // Store the previous filter option
 
 	heading.css({
@@ -198,10 +199,12 @@ function filter(winesByVariety, winevarietys) {
 
 	// Set the initial heading text
 	heading.html("Winevarietys in <br> the world by ").append(filterElement);
+
+	return filteroption;
 }
 
 // Function for drawing the entire visualization
-function draw(winesByVariety, winevarietys) {
+function draw(winesByVariety, winevarietys, filteroption) {
 	let elementPositions = [];
 	let winecolorboxcolor = "white";
 
@@ -312,27 +315,47 @@ function draw(winesByVariety, winevarietys) {
 
 	for (let i = 0; i < Object.keys(winesByVariety).length; i++) {
 		elementPositions.forEach((element) => {
-			createCircleForWinevariety(element, i, winesByVariety);
+			createCircleForWinevariety(
+				element,
+				i,
+				winesByVariety,
+				filteroption
+			);
 		});
 	}
 }
 
 // Function for creating the circles for each winevariety
-function createCircleForWinevariety(element, counter, winesByVariety) {
+function createCircleForWinevariety(
+	element,
+	count,
+	winesByVariety,
+	filteroption
+) {
 	let circle = $("<div></div>");
 	let circleSize;
 	let saturation;
-	count = counter;
+	let mappingoption;
 
 	country = Object.keys(winesByVariety)[count];
+
 	if (element.variety in winesByVariety[country]) {
-		circleSize = map(
-			Math.round(winesByVariety[country][element.variety].points),
-			80,
-			100,
-			0,
-			35
-		);
+		switch (filteroption) {
+			case "Points.":
+				console.log("points");
+				mappingoption = winesByVariety[country][element.variety].points;
+				break;
+			case "Price.":
+				console.log("price");
+				mappingoption = winesByVariety[country][element.variety].points;
+				break;
+			case "Production.":
+				//-----------------------------------------------------------------------CHANGE POINTS TO PRODUCTI0N LATER -----------------------------------------------------------------------
+
+				mappingoption = winesByVariety[country][element.variety].points;
+				break;
+		}
+		circleSize = map(Math.round(mappingoption), 80, 100, 0, 35);
 		saturation = Math.round((circleSize / 100) * 255);
 	}
 
@@ -414,8 +437,8 @@ function createCircleForWinevariety(element, counter, winesByVariety) {
 			$(this)
 				.animate(
 					{
-						width: /*circleSize*/ 25 + "px",
-						height: /*circleSize*/ 25 + "px",
+						width: /*circleSize*/ 22 + "px",
+						height: /*circleSize*/ 22 + "px",
 					},
 					"fast"
 				)
