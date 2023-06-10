@@ -156,7 +156,9 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 
 function filter(winesByVariety, winevarietys) {
 	let heading = $("<h1></h1>");
+	let description = $("<p></p>");
 	let optionlist = ["Points.", "Price.", "Production."];
+	let descriptiontext = "";
 	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 	let previousOption = ""; // Store the previous filter option
 
@@ -173,10 +175,25 @@ function filter(winesByVariety, winevarietys) {
 
 	$("body").append(heading);
 
+	// Create a <p> element for the description
+	description.css({
+		position: "absolute",
+		left: "50%",
+		top: "0px",
+		margin: "9px",
+		transform: "translateY(45px)",
+		fontSize: "20px",
+		fontWeight: "Thin",
+		color: "white",
+	});
+
+	// Append the description to the body
+	$("body").append(description);
+
 	// Create a <u> element for the filteroption
 	let filterElement = $("<u></u>").appendTo(heading);
 
-	// Function to update the filteroption with animation
+	// Function to update the filteroption and description with animation
 	function updateFilterOption() {
 		// Get a random word from the optionlist
 		do {
@@ -192,9 +209,16 @@ function filter(winesByVariety, winevarietys) {
 			// Update the filteroption text
 			filterElement.text(filteroption).animate({ opacity: 1 }, 400);
 		});
+
+		// Animate the description change
+		description.animate({ opacity: 0 }, 400, function () {
+			// Update the description text
+			descriptiontext = getDescriptionText(filteroption);
+			description.html(descriptiontext).animate({ opacity: 1 }, 400);
+		});
 	}
 
-	// Update the filteroption every few seconds (e.g., every 3 seconds)
+	// Update the filteroption and description every few seconds (e.g., every 3 seconds)
 	setInterval(updateFilterOption, 3000);
 
 	// Set the initial heading text
@@ -203,13 +227,46 @@ function filter(winesByVariety, winevarietys) {
 	return filteroption;
 }
 
+// Function to get the description text based on the filteroption
+function getDescriptionText(filteroption) {
+	switch (filteroption) {
+		case "Points.":
+			return "This average represents the overall points earned by different wine varieties produced in each country. The wine's quality improves as the points increase. <br> The saturation level reflects the wine's rating, indicating its strength of appeal.";
+		case "Price.":
+			return "This average represents the typical price range of wine varieties produced in each country. The saturation level corresponds to the wine's price. <br> As the price increases, the color saturation becomes more pronounced, indicating a higher value.";
+		case "Production.":
+			return "This represents the total quantity of wine produced for each wine variety in every country. The color saturation is determined by the production level of the wine. <br> The more wine produced, the more intense the color saturation becomes, indicating higher production volume.";
+		default:
+			return "";
+	}
+}
+
 // Function for drawing the entire visualization
 function draw(winesByVariety, winevarietys, filteroption) {
 	let elementPositions = [];
 	let winecolorboxcolor = "white";
 
-	// change the fontfamily of the body
-	$("body").css("font-family", "Arial, Helvetica, sans-serif");
+	// change the fontfamily of the body to a installed font
+	$("body").css({
+		fontFamily: "Neuzeit Grotesk",
+	});
+
+	// Add a image element to the DOM
+	var img = $("<div></div>");
+
+	img.css({
+		position: "fixed",
+		left: "-140px",
+		bottom: "-50%", // Move the image 50% below the bottom of the page
+		width: "calc(50% + 140px)",
+		height: "128%", // Increase the height to 150% to extend beyond the bottom
+		backgroundImage: "url(./bottle.png)",
+		backgroundSize: "contain",
+		backgroundRepeat: "no-repeat",
+		backgroundPosition: "left bottom", // Adjust the background position if needed
+	});
+
+	$("body").append(img);
 
 	$.each(winevarietys, function (index, value) {
 		let append;
@@ -236,10 +293,10 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		append.css({
 			position: "relative",
 			left: "130px",
-			top: "230px",
-			margin: "9px",
+			top: "240px",
+			margin: "7px",
 			transform: "translateY(65px)",
-			fontSize: "12px",
+			fontSize: "14px",
 			fontWeight: "bold",
 			color: "white",
 		});
@@ -260,7 +317,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			left: position.left - 8 + "px", // Set the left position of the box to match the text element
 			top: position.top - 4 + "px", // Set the top position of the box to match the text element
 			width: "90%",
-			height: "23.4px",
+			height: "24.3px",
 			backgroundColor: winecolorboxcolor,
 			zIndex: "-1", // Set a negative z-index to position the box behind the text
 		});
@@ -286,7 +343,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			margin: "3px",
 			left: "0px",
 			top: "0px",
-			fontSize: "12px",
+			fontSize: "14px",
 			fontWeight: "bold",
 			color: "white",
 			transform: "rotate(-90deg)",
