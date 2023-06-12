@@ -23,7 +23,7 @@ $(document).ready(function () {
 });
 
 function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
-	// iterate over all wines and calculate the average values for each variety for each country
+	// Iterate over all wines and calculate the average values for each variety for each country
 	winedata.forEach(function (wine) {
 		let country = wine.country;
 		let variety = wine.variety;
@@ -73,7 +73,7 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 				winesByVariety[country][variety].rating += wine.rating;
 				winesByVariety[country][variety].count++;
 
-				// check if sweetness value needs to be updated
+				// Check if sweetness value needs to be updated
 				if (sweetness === "dry") {
 					winesByVariety[country][variety].dryCount++;
 				} else if (sweetness === "sweet") {
@@ -88,14 +88,14 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 					winesByVariety[country][variety].sweetness = "sweet";
 				}
 
-				// check the count of herbal and fruity values
+				// Check the count of herbal and fruity values
 				if (fruitiness === "herbal") {
 					herbalCount++;
 				} else if (fruitiness === "fruity") {
 					fruityCount++;
 				}
 
-				// set the fruitiness value based on the count of herbal and fruity values
+				// Set the fruitiness value based on the count of herbal and fruity values
 				if (fruityCount > herbalCount) {
 					winesByVariety[country][variety].fruitiness = "fruity";
 				} else {
@@ -105,7 +105,7 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 		}
 	});
 
-	// calculate the average values for each variety for each country
+	// Calculate the average values for each variety for each country
 	for (var country in winesByVariety) {
 		if (winesByVariety.hasOwnProperty(country)) {
 			for (var variety in winesByVariety[country]) {
@@ -121,7 +121,7 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 		}
 	}
 
-	// delete every winevariety that is produced by less than 5 countries
+	// Delete every winevariety that is produced by less than 5 countries
 	for (let i = 0; i < winevarietys.length; i++) {
 		let count = 0;
 		for (let j = 0; j < Object.keys(winesByVariety).length; j++) {
@@ -138,7 +138,7 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 		}
 	}
 
-	// rearrange the winevarietys array so that the winevariety with the highest count is at the beginning
+	// Rearrange the winevarietys array so that the winevariety with the highest count is at the beginning
 	winevarietys.sort(function (a, b) {
 		let countA = 0;
 		let countB = 0;
@@ -152,6 +152,28 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 		}
 		return countB - countA;
 	});
+
+	// Create new object parameters for each variety in each country with the count of wines
+	for (var country in winesByVariety) {
+		if (winesByVariety.hasOwnProperty(country)) {
+			for (var variety in winesByVariety[country]) {
+				if (winesByVariety[country].hasOwnProperty(variety)) {
+					let count = 0;
+					for (var i = 0; i < winedata.length; i++) {
+						if (
+							winedata[i].country === country &&
+							winedata[i].variety === variety
+						) {
+							count++;
+						}
+					}
+					winesByVariety[country][variety].production = count;
+				}
+			}
+		}
+	}
+
+	console.log(winesByVariety);
 }
 
 function filter(winesByVariety, winevarietys) {
@@ -389,122 +411,13 @@ function createCircleForWinevariety(
 	winesByVariety,
 	filteroption
 ) {
-	let circle = $("<div></div>");
-	let circleSize;
-	let saturation;
-	let mappingoption;
-
-	country = Object.keys(winesByVariety)[count];
-
-	if (element.variety in winesByVariety[country]) {
-		switch (filteroption) {
-			case "Points.":
-				console.log("points");
-				mappingoption = winesByVariety[country][element.variety].points;
-				break;
-			case "Price.":
-				console.log("price");
-				mappingoption = winesByVariety[country][element.variety].points;
-				break;
-			case "Production.":
-				//-----------------------------------------------------------------------CHANGE POINTS TO PRODUCTI0N LATER -----------------------------------------------------------------------
-
-				mappingoption = winesByVariety[country][element.variety].points;
-				break;
-		}
-		circleSize = map(Math.round(mappingoption), 80, 100, 0, 35);
-		saturation = Math.round((circleSize / 100) * 255);
-	}
-
-	circle.data("country", country);
-
-	circle.css({
-		width: /*circleSize*/ 22 + "px",
-		height: /*circleSize*/ 22 + "px",
-		borderRadius: "50%",
-		backgroundColor: "hsl(" + saturation + ", 100%, 50%)",
-		position: "absolute",
-		left: 350 + count * 30.5 + "px",
-		top: 8.5 + element.top,
-		transform: "translate(-50%, -50%)",
-	});
-
-	// Add the class 'wine-circle' to the circle
-	circle.addClass("wine-circle");
-
-	$("body").append(circle);
-
-	circle.hover(
-		function () {
-			// Animate the circle size and change the background color on mouseenter
-			$(this)
-				.animate(
-					{
-						width: 7 + /*circleSize*/ 22 + "px",
-						height: 7 + /*circleSize*/ 22 + "px",
-					},
-					"fast"
-				)
-				.css("background-color", "hsl(" + saturation + ", 100%, 20%)");
-
-			// Get the position of the hovered circle
-			let circlePosition = $(this).position();
-
-			// Create the black box and add it to the DOM
-			let blackBox = $("<div></div>");
-			blackBox.attr("id", "black-box");
-			blackBox.css({
-				position: "absolute",
-				left: circlePosition.left - 180 + "px", // Update the left position based on the circle's position with 20px offset
-				top: circlePosition.top + "px",
-				width: "150px",
-				height: "auto",
-				backgroundColor: "black",
-				color: "white",
-				padding: "10px",
-				borderRadius: "5px",
-				zIndex: 10,
-			});
-
-			blackBox.text(
-				"Country: " +
-					$(this).data("country") +
-					"\n" +
-					"Variety: " +
-					element.variety +
-					"\n" +
-					"Points: " +
-					Math.round(
-						winesByVariety[$(this).data("country")][element.variety]
-							.points
-					) +
-					" / 100" +
-					"\n" +
-					"Price: " +
-					Math.round(
-						winesByVariety[$(this).data("country")][element.variety]
-							.price
-					) +
-					"€"
-			);
-			$("body").append(blackBox);
-		},
-		function () {
-			// Animate the circle size back to its original size and restore the original background color on mouseleave
-			$(this)
-				.animate(
-					{
-						width: /*circleSize*/ 22 + "px",
-						height: /*circleSize*/ 22 + "px",
-					},
-					"fast"
-				)
-				.css("background-color", "hsl(" + saturation + ", 100%, 50%)");
-
-			// Remove the black box from the DOM
-			$("#black-box").remove();
-		}
+	const circle = new CircleForWineVariety(
+		element,
+		count,
+		winesByVariety,
+		filteroption
 	);
+	circle.createCircle();
 }
 
 // Map function
