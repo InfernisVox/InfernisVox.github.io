@@ -1,3 +1,5 @@
+let Wines = { winecolorboxes: null };
+
 $(document).ready(function () {
 	var promise = new Promise(function (resolve, reject) {
 		$.getJSON("../../datasets/sortedwines.json", function (data) {
@@ -11,10 +13,10 @@ $(document).ready(function () {
 		.then(function (winedata) {
 			let winesByVariety = {};
 			let winevarietys = [];
-			let filteroption = filter(winesByVariety, winevarietys);
+			let filteroption;
+			filteroption = filter(winedata, winesByVariety); // Pass 'winedata' as a parameter to the 'filter' function
 
 			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
-			filter(winesByVariety, winevarietys, filteroption);
 			draw(winesByVariety, winevarietys, filteroption);
 		})
 		.catch(function (error) {
@@ -177,7 +179,7 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 }
 
 function filter(winesByVariety, winevarietys) {
-	let heading = $("<h1></h1>");
+	let heading = $("<h2></h2>");
 	let description = $("<p></p>");
 	let optionlist = ["Points.", "Price.", "Production."];
 	let descriptiontext = "";
@@ -215,7 +217,6 @@ function filter(winesByVariety, winevarietys) {
 	// Create a <u> element for the filteroption
 	let filterElement = $("<u></u>").appendTo(heading);
 
-	// Function to update the filteroption and description with animation
 	function updateFilterOption() {
 		// Get a random word from the optionlist
 		do {
@@ -225,7 +226,6 @@ function filter(winesByVariety, winevarietys) {
 
 		// Update the previous option
 		previousOption = filteroption;
-
 		// Animate the filteroption change
 		filterElement.animate({ opacity: 0 }, 400, function () {
 			// Update the filteroption text
@@ -240,12 +240,10 @@ function filter(winesByVariety, winevarietys) {
 		});
 	}
 
-	// Update the filteroption and description every few seconds (e.g., every 3 seconds)
 	setInterval(updateFilterOption, 3000);
 
 	// Set the initial heading text
 	heading.html("Winevarietys in <br> the world by ").append(filterElement);
-
 	return filteroption;
 }
 
@@ -259,7 +257,7 @@ function getDescriptionText(filteroption) {
 		case "Production.":
 			return "This represents the total quantity of wine produced for each wine variety in every country. The color saturation is determined by the production level of the wine. <br> The more wine produced, the more intense the color saturation becomes, indicating higher production volume.";
 		default:
-			return "";
+			return "What in god's name were you doing to get this displayed?";
 	}
 }
 
@@ -267,6 +265,8 @@ function getDescriptionText(filteroption) {
 function draw(winesByVariety, winevarietys, filteroption) {
 	let elementPositions = [];
 	let winecolorboxcolor = "white";
+	// let winecolorboxes = {};
+	Wines.winecolorboxes = {};
 
 	// change the fontfamily of the body to a installed font
 	$("body").css({
@@ -301,11 +301,11 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 		// change the color behinde the winevariety based on the color of the wine
 		if (kml == "red") {
-			winecolorboxcolor = "rgba(255, 0, 0, 0.2)";
+			winecolorboxcolor = "rgba(255, 0, 46, 0.13)";
 		} else if (kml == "white") {
-			winecolorboxcolor = "rgba(255, 255, 0, 0.2)";
+			winecolorboxcolor = "rgba(255, 153, 0, 0.09)";
 		} else if (kml == "not classified") {
-			winecolorboxcolor = "rgba(0, 0, 0, 0.2)";
+			winecolorboxcolor = "rgba(0, 0, 0, 0)";
 		}
 
 		// p element
@@ -333,16 +333,19 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		});
 
 		// create the color box
-		let winecolorbox = $("<div></div>");
+		let winecolorbox = $("<div class = 'label'></div>");
+
 		winecolorbox.css({
 			position: "absolute",
 			left: position.left - 8 + "px", // Set the left position of the box to match the text element
 			top: position.top - 4 + "px", // Set the top position of the box to match the text element
-			width: "90%",
+			width: "90% ",
 			height: "24.3px",
 			backgroundColor: winecolorboxcolor,
 			zIndex: "-1", // Set a negative z-index to position the box behind the text
 		});
+
+		Wines.winecolorboxes[value] = winecolorbox;
 
 		$("body").append(winecolorbox);
 	});
@@ -358,6 +361,8 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 		append = $("<p></p>");
 		append.text(index);
+
+		append.addClass("countryLabel");
 
 		// let the elements be alligned to the x of the circles underneath
 		append.css({
@@ -398,10 +403,30 @@ function draw(winesByVariety, winevarietys, filteroption) {
 				element,
 				i,
 				winesByVariety,
-				filteroption
+				filteroption,
+				Wines.winecolorboxes
 			);
 		});
 	}
+
+	// let the winecolorboxes only be visible when the mouse is over the circle
+	$(".wine-circle").mouseenter(function () {
+		console.log("enter");
+		let variety = $(this).data("variety");
+		let refHTML = Wines.winecolorboxes[variety];
+		console.log(refHTML);
+		$(refHTML).addClass("label");
+	});
+
+	$(".wine-circle").mouseleave(function () {
+		console.log("leave");
+		let variety = $(this).data("variety");
+		let refHTML = Wines.winecolorboxes[variety];
+		console.log(refHTML);
+		$(refHTML).removeClass("label");
+	});
+
+	console.log(elementPositions);
 }
 
 // Function for creating the circles for each winevariety
@@ -423,4 +448,38 @@ function createCircleForWinevariety(
 // Map function
 function map(number, inMin, inMax, outMin, outMax) {
 	return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
+
+function connectWithLine(circle1, circle2) {
+	const position1 = circle1.position();
+	const position2 = circle2.position();
+
+	const centerX1 = position1.left + circle1.outerWidth() / 2;
+	const centerY1 = position1.top + circle1.outerHeight() / 2;
+	const centerX2 = position2.left + circle2.outerWidth() / 2;
+	const centerY2 = position2.top + circle2.outerHeight() / 2;
+
+	const line = $("<div></div>");
+	line.addClass("line");
+	line.css({
+		position: "absolute",
+		border: "1px solid white",
+		backgroundColor: "white",
+		left: centerX1,
+		top: centerY1,
+		width: Math.sqrt(
+			(centerX2 - centerX1) * (centerX2 - centerX1) +
+				(centerY2 - centerY1) * (centerY2 - centerY1)
+		),
+		transformOrigin: "left",
+		transform: `rotate(${
+			Math.atan2(centerY2 - centerY1, centerX2 - centerX1) *
+			(180 / Math.PI)
+		}deg)`,
+		zIndex: 5,
+	});
+
+	$("body").append(line);
+
+	this.line = line;
 }

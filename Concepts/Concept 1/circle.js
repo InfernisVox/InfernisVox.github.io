@@ -11,6 +11,7 @@ class CircleForWineVariety {
 		this.circle = $("<div></div>");
 		this.clicked = false;
 		this.descriptionBox = null; // Store the reference to the description box
+		this.line = null; // Store the reference to the line element
 	}
 
 	createCircle() {
@@ -35,11 +36,11 @@ class CircleForWineVariety {
 						].points;
 					break;
 				case "Production.":
-					//-----------------------------------------------------------------------CHANGE POINTS TO PRODUCTI0N LATER -----------------------------------------------------------------------
+					console.log("production");
 					this.mappingOption =
 						this.winesByVariety[this.country][
 							this.element.variety
-						].points;
+						].production;
 					break;
 			}
 			this.circleSize = map(
@@ -84,12 +85,13 @@ class CircleForWineVariety {
 				self.descriptionBox.remove(); // Remove the description box when unclicked
 			}
 			// let the circle have a white border when clicked
-			$(this).css("border", "2px solid white");
+			$(this).css("border", "2px soild white");
 			// let the circle have no border when unclicked
 			if (!self.clicked) {
 				$(this).css("border", "none");
 			}
 		});
+		console.log(this.circle);
 	}
 
 	addHoverBehavior() {
@@ -200,14 +202,13 @@ class CircleForWineVariety {
 			top: circlePosition.top + "px",
 			width: "200px",
 			height: "auto",
-			color: "white",
-			backgroundColor: "black",
+			backgroundColor: "white",
 			padding: "10px",
 			borderRadius: "5px",
 			zIndex: 10,
 		});
 
-		var text =
+		const descriptionText =
 			"Country: " +
 			this.circle.data("country") +
 			"<br>Variety: " +
@@ -240,14 +241,7 @@ class CircleForWineVariety {
 				this.element.variety
 			].fruitiness;
 
-		this.descriptionBox.html(text);
-
-		this.descriptionBox.click(function () {
-			self.clicked = false;
-			self.circle.removeClass("active");
-			self.descriptionBox.remove();
-			self.addHoverBehavior();
-		});
+		this.descriptionBox.html(descriptionText);
 
 		$("body").append(this.descriptionBox);
 	}
