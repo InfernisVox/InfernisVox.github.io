@@ -295,15 +295,25 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		let kml;
 		$(winevarietys[value]).each(function (index, value) {});
 
-		if (winesByVariety["US"][value] !== undefined) {
-			kml = winesByVariety["US"][value].color;
+		//get all the countries names
+		let countries = Object.keys(winesByVariety);
+
+		//now cycle through the countries
+		for (let i = 0; i < countries.length; i++) {
+			//if the country has the winevariety
+			if (winesByVariety[countries[i]][value] !== undefined) {
+				//get the color of the winevariety
+				kml = winesByVariety[countries[i]][value].color;
+			}
 		}
 
 		// change the color behinde the winevariety based on the color of the wine
 		if (kml == "red") {
-			winecolorboxcolor = "rgba(255, 0, 46, 0.13)";
+			winecolorboxcolor = "rgba(255, 0, 46, 0.3)";
 		} else if (kml == "white") {
-			winecolorboxcolor = "rgba(255, 153, 0, 0.09)";
+			winecolorboxcolor = "rgba(255, 153, 0, 0.3)";
+		} else if (kml == "rose") {
+			winecolorboxcolor = "rgba(233, 50, 122, 0.3)";
 		} else if (kml == "not classified") {
 			winecolorboxcolor = "rgba(0, 0, 0, 0)";
 		}
@@ -337,9 +347,9 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 		winecolorbox.css({
 			position: "absolute",
-			left: position.left - 8 + "px", // Set the left position of the box to match the text element
+			left: "8%", // Set the left position of the box to match the text element
 			top: position.top - 4 + "px", // Set the top position of the box to match the text element
-			width: "90% ",
+			width: "91% ",
 			height: "24.3px",
 			backgroundColor: winecolorboxcolor,
 			zIndex: "-1", // Set a negative z-index to position the box behind the text
@@ -411,19 +421,27 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 	// let the winecolorboxes only be visible when the mouse is over the circle
 	$(".wine-circle").mouseenter(function () {
-		console.log("enter");
 		let variety = $(this).data("variety");
+		if (variety == undefined) {
+			return;
+		}
 		let refHTML = Wines.winecolorboxes[variety];
-		console.log(refHTML);
-		$(refHTML).addClass("label");
+		$(refHTML)
+			.removeClass("label")
+			.css("left", "-100%") // Initial position offscreen to the left
+			.animate({ left: "8%" }, 500); // Animation to move the element to 0% left (visible)
 	});
 
 	$(".wine-circle").mouseleave(function () {
-		console.log("leave");
 		let variety = $(this).data("variety");
+		if (variety == undefined) {
+			return;
+		}
 		let refHTML = Wines.winecolorboxes[variety];
-		console.log(refHTML);
-		$(refHTML).removeClass("label");
+		$(refHTML)
+			.addClass("label")
+			.css("left", "8%") // Reset position to 0% left
+			.animate({ left: "-100%" }, 500); // Animation to move the element offscreen to the left
 	});
 
 	console.log(elementPositions);

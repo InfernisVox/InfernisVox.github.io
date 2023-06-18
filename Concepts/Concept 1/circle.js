@@ -23,34 +23,40 @@ class CircleForWineVariety {
 			switch (this.filterOption) {
 				case "Points.":
 					console.log("points");
-					this.mappingOption =
-						this.winesByVariety[this.country][
-							this.element.variety
-						].points;
+					this.saturation = Math.round(
+						(this.winesByVariety[this.country][this.element.variety]
+							.points /
+							100) *
+							255
+					);
 					break;
 				case "Price.":
 					console.log("price");
-					this.mappingOption =
-						this.winesByVariety[this.country][
-							this.element.variety
-						].points;
+					this.saturation = Math.round(
+						(this.winesByVariety[this.country][this.element.variety]
+							.price /
+							100) *
+							255
+					);
 					break;
 				case "Production.":
 					console.log("production");
-					this.mappingOption =
-						this.winesByVariety[this.country][
-							this.element.variety
-						].production;
+					this.saturation = Math.round(
+						(this.winesByVariety[this.country][this.element.variety]
+							.production /
+							100) *
+							255
+					);
 					break;
 			}
-			this.circleSize = map(
-				Math.round(this.mappingOption),
-				80,
-				100,
-				0,
-				35
-			);
-			this.saturation = Math.round((this.circleSize / 100) * 255);
+			// this.circleSize = map(
+			// 	Math.round(this.mappingOption),
+			// 	80,
+			// 	100,
+			// 	0,
+			// 	35
+			// );
+			// this.saturation = Math.round((this.circleSize / 100) * 255);
 		}
 
 		this.circle.data("country", this.country);
@@ -65,6 +71,9 @@ class CircleForWineVariety {
 			top: 8.5 + this.element.top,
 			transform: "translate(-50%, -50%)",
 		});
+
+		//append the winevariety to the circle as "variety"
+		this.circle.data("variety", this.element.variety);
 
 		// Add the class 'wine-circle' to the circle
 		this.circle.addClass("wine-circle");
