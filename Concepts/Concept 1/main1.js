@@ -363,31 +363,41 @@ function draw(winesByVariety, winevarietys, filteroption) {
 	// create a container element to hold the <p> elements
 	let container = $("<div></div>");
 
+	let count = 0;
 	$.each(winesByVariety, function (index, value) {
 		let append;
 
 		// create the <p> element
 		// change the font size to 10px
-
+		let div = $("<div></div>");
 		append = $("<p></p>");
+
 		append.text(index);
 
 		append.addClass("countryLabel");
 
+		div.css({
+			position: "absolute",
+			left: count * 30.5 + "px",
+			width: "22px",
+			marginRight: "8.5px",
+		});
+		count++;
+
 		// let the elements be alligned to the x of the circles underneath
 		append.css({
-			position: "aboslute",
-			margin: "3px",
-			left: "0px",
 			top: "0px",
 			fontSize: "14px",
 			fontWeight: "bold",
 			color: "white",
 			transform: "rotate(-90deg)",
+			lineHeight: "22px",
+			paddingLeft: "6px",
 		});
 
 		// append the <p> element to the container
-		container.append(append);
+		div.append(append);
+		container.append(div);
 	});
 
 	// apply CSS properties to the container element
@@ -398,10 +408,11 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		height: "30px",
 		top: "265px",
 		right: "0px",
-		left: "343px",
+		left: "341px",
 		textOrientation: "upright",
 		whiteSpace: "nowrap",
 		overflowX: "auto",
+		overflowY: "hidden",
 	});
 
 	// append the container to the body

@@ -24,8 +24,17 @@ class CircleForWineVariety {
 				case "Points.":
 					console.log("points");
 					this.saturation = Math.round(
-						(this.winesByVariety[this.country][this.element.variety]
-							.points /
+						(map(
+							Math.round(
+								this.winesByVariety[this.country][
+									this.element.variety
+								].points
+							),
+							80,
+							100,
+							0,
+							35
+						) /
 							100) *
 							255
 					);
@@ -33,8 +42,17 @@ class CircleForWineVariety {
 				case "Price.":
 					console.log("price");
 					this.saturation = Math.round(
-						(this.winesByVariety[this.country][this.element.variety]
-							.price /
+						(map(
+							Math.round(
+								this.winesByVariety[this.country][
+									this.element.variety
+								].price
+							),
+							80,
+							100,
+							0,
+							35
+						) /
 							100) *
 							255
 					);
@@ -42,21 +60,23 @@ class CircleForWineVariety {
 				case "Production.":
 					console.log("production");
 					this.saturation = Math.round(
-						(this.winesByVariety[this.country][this.element.variety]
-							.production /
+						(map(
+							Math.round(
+								this.winesByVariety[this.country][
+									this.element.variety
+								].production
+							),
+							80,
+							100,
+							0,
+							35
+						) /
 							100) *
 							255
 					);
+
 					break;
 			}
-			// this.circleSize = map(
-			// 	Math.round(this.mappingOption),
-			// 	80,
-			// 	100,
-			// 	0,
-			// 	35
-			// );
-			// this.saturation = Math.round((this.circleSize / 100) * 255);
 		}
 
 		this.circle.data("country", this.country);
