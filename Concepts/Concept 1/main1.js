@@ -13,7 +13,7 @@ $(document).ready(function () {
 		.then(function (winedata) {
 			let winesByVariety = {};
 			let winevarietys = [];
-			let filteroption;
+			var filteroption;
 			filteroption = filter(winedata, winesByVariety); // Pass 'winedata' as a parameter to the 'filter' function
 
 			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
@@ -181,13 +181,32 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 function filter(winesByVariety, winevarietys) {
 	let heading = $("<h2></h2>");
 	let description = $("<p></p>");
+	let backdrop = $("<div></div>");
 	let optionlist = ["Points.", "Price.", "Production."];
 	let descriptiontext = "";
 	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 	let previousOption = ""; // Store the previous filter option
 
+	// Create a <div> element for the backdrop
+	// let the backdrop be displayed over everything else
+	backdrop.css({
+		position: "fixed",
+		left: "0px",
+		top: "0px",
+		width: "100%",
+		height: "307px",
+		backgroundImage:
+			"linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))",
+		zIndex: "1",
+		backdropFilter: "blur(10px)",
+		borderRadius: "10px 10px 0 0",
+		boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.8)",
+	});
+
+	$("body").append(backdrop);
+
 	heading.css({
-		position: "absolute",
+		position: "fixed",
 		left: "135px",
 		top: "0px",
 		margin: "9px",
@@ -195,13 +214,14 @@ function filter(winesByVariety, winevarietys) {
 		fontSize: "50px",
 		fontWeight: "bold",
 		color: "white",
+		zIndex: "2",
 	});
 
 	$("body").append(heading);
 
 	// Create a <p> element for the description
 	description.css({
-		position: "absolute",
+		position: "fixed",
 		left: "50%",
 		top: "0px",
 		margin: "9px",
@@ -209,6 +229,7 @@ function filter(winesByVariety, winevarietys) {
 		fontSize: "20px",
 		fontWeight: "Thin",
 		color: "white",
+		zIndex: "2",
 	});
 
 	// Append the description to the body
@@ -278,17 +299,35 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 	img.css({
 		position: "fixed",
-		left: "-140px",
-		bottom: "-50%", // Move the image 50% below the bottom of the page
-		width: "calc(50% + 140px)",
-		height: "128%", // Increase the height to 150% to extend beyond the bottom
-		backgroundImage: "url(./bottle.png)",
+		left: "-2%",
+		bottom: "-38%", // Move the image 50% below the bottom of the page
+		width: "560px", // Set the width equal to the width of the bottle image
+		height: "1000px", // Set the height equal to the height of the bottle image
+		background: "url(./bottle.png) no-repeat",
 		backgroundSize: "contain",
-		backgroundRepeat: "no-repeat",
-		backgroundPosition: "left bottom", // Adjust the background position if needed
+		backgroundPosition: "center bottom", // Adjust the background position if needed
+		transform: "translateX(-50%)", // Center the image horizontally
+		zIndex: "2", // Set a negative z-index to position the image behind the text
 	});
 
 	$("body").append(img);
+
+	window.addEventListener("scroll", function () {
+		var scrollPosition = window.scrollY;
+
+		if (scrollPosition > 150) {
+			img.css({
+				position: "absolute",
+				bottom: "-55%", // Change the bottom position to "0" gradually
+			});
+			console.log("waaaaaah");
+		} else {
+			img.css({
+				position: "fixed",
+				bottom: "-38%", // Restore the original position
+			});
+		}
+	});
 
 	$.each(winevarietys, function (index, value) {
 		let append;
@@ -309,11 +348,14 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 		// change the color behinde the winevariety based on the color of the wine
 		if (kml == "red") {
-			winecolorboxcolor = "rgba(255, 0, 46, 0.3)";
+			winecolorboxcolor =
+				"linear-gradient(to right, rgba(255, 0, 46, 0.3), rgba(255, 0, 46, 0.04))";
 		} else if (kml == "white") {
-			winecolorboxcolor = "rgba(255, 153, 0, 0.3)";
+			winecolorboxcolor =
+				"linear-gradient(to right, rgba(255, 153, 0, 0.3), rgba(255, 153, 0, 0.04))";
 		} else if (kml == "rose") {
-			winecolorboxcolor = "rgba(233, 50, 122, 0.3)";
+			winecolorboxcolor =
+				"linear-gradient(to right, rgba(233, 50, 122, 0.3), rgba(233, 50, 122, 0.04))";
 		} else if (kml == "not classified") {
 			winecolorboxcolor = "rgba(0, 0, 0, 0)";
 		}
@@ -351,7 +393,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			top: position.top - 4 + "px", // Set the top position of the box to match the text element
 			width: "91% ",
 			height: "24.3px",
-			backgroundColor: winecolorboxcolor,
+			backgroundImage: winecolorboxcolor,
 			zIndex: "-1", // Set a negative z-index to position the box behind the text
 		});
 
@@ -404,7 +446,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 	// let the elements that are not on the screens be visible by scrolling to the x axis
 	container.css({
 		display: "flex",
-		position: "absolute",
+		position: "fixed",
 		height: "30px",
 		top: "265px",
 		right: "0px",
@@ -413,6 +455,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		whiteSpace: "nowrap",
 		overflowX: "auto",
 		overflowY: "hidden",
+		zIndex: "2",
 	});
 
 	// append the container to the body
@@ -439,8 +482,8 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		let refHTML = Wines.winecolorboxes[variety];
 		$(refHTML)
 			.removeClass("label")
-			.css("left", "-100%") // Initial position offscreen to the left
-			.animate({ left: "8%" }, 500); // Animation to move the element to 0% left (visible)
+			.css("width", "0%") // Initial position offscreen to the left
+			.animate({ width: "92%" }, 500); // Animation to move the element to 0% left (visible)
 	});
 
 	$(".wine-circle").mouseleave(function () {
@@ -451,11 +494,24 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		let refHTML = Wines.winecolorboxes[variety];
 		$(refHTML)
 			.addClass("label")
-			.css("left", "8%") // Reset position to 0% left
-			.animate({ left: "-100%" }, 500); // Animation to move the element offscreen to the left
+			.css("width", "91%") // Reset position to 0% left
+			.animate({ width: "0%" }, 500); // Animation to move the element offscreen to the left
 	});
 
-	console.log(elementPositions);
+	// create a div element at the bottom of the page that is absolute at the bottom
+	let footer = $("<div></div>");
+
+	footer.css({
+		position: "absolute",
+		bottom: "-53%",
+		left: "0px",
+		width: "100%",
+		height: "10px",
+		backgroundColor: "rgba(0, 0, 0, 0)",
+	});
+
+	$("body").append(footer);
+	console.log(filteroption);
 }
 
 // Function for creating the circles for each winevariety
@@ -477,38 +533,4 @@ function createCircleForWinevariety(
 // Map function
 function map(number, inMin, inMax, outMin, outMax) {
 	return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-}
-
-function connectWithLine(circle1, circle2) {
-	const position1 = circle1.position();
-	const position2 = circle2.position();
-
-	const centerX1 = position1.left + circle1.outerWidth() / 2;
-	const centerY1 = position1.top + circle1.outerHeight() / 2;
-	const centerX2 = position2.left + circle2.outerWidth() / 2;
-	const centerY2 = position2.top + circle2.outerHeight() / 2;
-
-	const line = $("<div></div>");
-	line.addClass("line");
-	line.css({
-		position: "absolute",
-		border: "1px solid white",
-		backgroundColor: "white",
-		left: centerX1,
-		top: centerY1,
-		width: Math.sqrt(
-			(centerX2 - centerX1) * (centerX2 - centerX1) +
-				(centerY2 - centerY1) * (centerY2 - centerY1)
-		),
-		transformOrigin: "left",
-		transform: `rotate(${
-			Math.atan2(centerY2 - centerY1, centerX2 - centerX1) *
-			(180 / Math.PI)
-		}deg)`,
-		zIndex: 5,
-	});
-
-	$("body").append(line);
-
-	this.line = line;
 }

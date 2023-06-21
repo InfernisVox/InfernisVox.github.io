@@ -19,6 +19,52 @@ class CircleForWineVariety {
 
 		this.country = Object.keys(this.winesByVariety)[this.count];
 
+		this.circle.data("country", this.country);
+
+		this.updateSaturation();
+
+		this.circle.css({
+			width: /*circleSize*/ 22 + "px",
+			height: /*circleSize*/ 22 + "px",
+			borderRadius: "50%",
+			backgroundColor: "hsl(" + this.saturation + ", 100%, 50%)",
+			position: "absolute",
+			left: 350 + this.count * 30.5 + "px",
+			top: 8.5 + this.element.top,
+			transform: "translate(-50%, -50%)",
+		});
+
+		//append the winevariety to the circle as "variety"
+		this.circle.data("variety", this.element.variety);
+
+		// Add the class 'wine-circle' to the circle
+		this.circle.addClass("wine-circle");
+
+		$("body").append(this.circle);
+
+		this.addHoverBehavior();
+
+		this.circle.click(function () {
+			self.clicked = !self.clicked;
+			$(this).toggleClass("active", self.clicked);
+
+			if (self.clicked) {
+				self.createDescriptionBox(); // Display the description box when clicked
+				$(this).off("mouseenter mouseleave");
+			} else {
+				self.addHoverBehavior();
+				self.descriptionBox.remove(); // Remove the description box when unclicked
+			}
+			// let the circle have a white border when clicked
+			$(this).css("border", "2px soild white");
+			// let the circle have no border when unclicked
+			if (!self.clicked) {
+				$(this).css("border", "none");
+			}
+		});
+	}
+
+	updateSaturation() {
 		if (this.element.variety in this.winesByVariety[this.country]) {
 			switch (this.filterOption) {
 				case "Points.":
@@ -78,49 +124,6 @@ class CircleForWineVariety {
 					break;
 			}
 		}
-
-		this.circle.data("country", this.country);
-
-		this.circle.css({
-			width: /*circleSize*/ 22 + "px",
-			height: /*circleSize*/ 22 + "px",
-			borderRadius: "50%",
-			backgroundColor: "hsl(" + this.saturation + ", 100%, 50%)",
-			position: "absolute",
-			left: 350 + this.count * 30.5 + "px",
-			top: 8.5 + this.element.top,
-			transform: "translate(-50%, -50%)",
-		});
-
-		//append the winevariety to the circle as "variety"
-		this.circle.data("variety", this.element.variety);
-
-		// Add the class 'wine-circle' to the circle
-		this.circle.addClass("wine-circle");
-
-		$("body").append(this.circle);
-
-		this.addHoverBehavior();
-
-		this.circle.click(function () {
-			self.clicked = !self.clicked;
-			$(this).toggleClass("active", self.clicked);
-
-			if (self.clicked) {
-				self.createDescriptionBox(); // Display the description box when clicked
-				$(this).off("mouseenter mouseleave");
-			} else {
-				self.addHoverBehavior();
-				self.descriptionBox.remove(); // Remove the description box when unclicked
-			}
-			// let the circle have a white border when clicked
-			$(this).css("border", "2px soild white");
-			// let the circle have no border when unclicked
-			if (!self.clicked) {
-				$(this).css("border", "none");
-			}
-		});
-		console.log(this.circle);
 	}
 
 	addHoverBehavior() {
