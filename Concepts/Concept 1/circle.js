@@ -21,13 +21,13 @@ class CircleForWineVariety {
 
 		this.circle.data("country", this.country);
 
-		this.updateSaturation();
+		this.updateSaturation("Points.");
 
 		this.circle.css({
 			width: /*circleSize*/ 22 + "px",
 			height: /*circleSize*/ 22 + "px",
 			borderRadius: "50%",
-			backgroundColor: "hsl(" + this.saturation + ", 100%, 50%)",
+			backgroundColor: "hsl(15," + this.saturation + "%, 50%)",
 			position: "absolute",
 			left: 350 + this.count * 30.5 + "px",
 			top: 8.5 + this.element.top,
@@ -64,11 +64,13 @@ class CircleForWineVariety {
 		});
 	}
 
-	updateSaturation() {
+	updateSaturation(filterOption) {
+		this.filterOption = filterOption;
 		if (this.element.variety in this.winesByVariety[this.country]) {
+			let previousSaturation = this.saturation; // Store the previous saturation value
+
 			switch (this.filterOption) {
 				case "Points.":
-					console.log("points");
 					this.saturation = Math.round(
 						(map(
 							Math.round(
@@ -77,16 +79,15 @@ class CircleForWineVariety {
 								].points
 							),
 							80,
-							100,
+							115,
 							0,
-							35
+							100
 						) /
 							100) *
 							255
 					);
 					break;
 				case "Price.":
-					console.log("price");
 					this.saturation = Math.round(
 						(map(
 							Math.round(
@@ -94,17 +95,16 @@ class CircleForWineVariety {
 									this.element.variety
 								].price
 							),
-							80,
-							100,
-							0,
-							35
+							10,
+							200,
+							10,
+							100
 						) /
 							100) *
 							255
 					);
 					break;
 				case "Production.":
-					console.log("production");
 					this.saturation = Math.round(
 						(map(
 							Math.round(
@@ -112,16 +112,29 @@ class CircleForWineVariety {
 									this.element.variety
 								].production
 							),
-							80,
-							100,
-							0,
-							35
+							1,
+							400,
+							10,
+							100
 						) /
 							100) *
 							255
 					);
-
 					break;
+			}
+
+			// Interpolate between the previous color and the new color
+			let interval = 10; // Number of steps for the interpolation
+			let step = (this.saturation - previousSaturation) / interval;
+
+			// Update the color gradually
+			let currentSaturation = previousSaturation;
+			for (let i = 0; i < interval; i++) {
+				setTimeout(() => {
+					currentSaturation += step;
+					let color = "hsl(15," + currentSaturation + "%, 50%)";
+					this.circle.css("background-color", color);
+				}, i * 100); // Delay each step by 50 milliseconds
 			}
 		}
 	}
@@ -142,7 +155,7 @@ class CircleForWineVariety {
 					)
 					.css(
 						"background-color",
-						"hsl(" + self.saturation + ", 100%, 20%)"
+						"hsl(15," + self.saturation + "%, 50%)"
 					); // Use 'self' instead of 'this'
 
 				// Get the position of the hovered circle
@@ -213,7 +226,7 @@ class CircleForWineVariety {
 					)
 					.css(
 						"background-color",
-						"hsl(" + self.saturation + ", 100%, 50%)"
+						"hsl(15," + self.saturation + "%, 50%)"
 					); // Use 'self' instead of 'this'
 
 				// Remove the black box from the DOM

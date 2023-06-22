@@ -1,4 +1,11 @@
+/*TODO:
+	- Make filteroption dropown work
+	- Make a variety sorting dropdown
+	- Change gradient of circles based on filteroption
+*/
+
 let Wines = { winecolorboxes: null };
+let circleArray = [];
 
 $(document).ready(function () {
 	var promise = new Promise(function (resolve, reject) {
@@ -14,10 +21,11 @@ $(document).ready(function () {
 			let winesByVariety = {};
 			let winevarietys = [];
 			var filteroption;
-			filteroption = filter(winedata, winesByVariety); // Pass 'winedata' as a parameter to the 'filter' function
+			filteroption = filter();
 
 			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
 			draw(winesByVariety, winevarietys, filteroption);
+			dropdown();
 		})
 		.catch(function (error) {
 			console.log("fail " + error);
@@ -178,17 +186,21 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 	console.log(winesByVariety);
 }
 
-function filter(winesByVariety, winevarietys) {
+function filter() {
 	let heading = $("<h2></h2>");
 	let description = $("<p></p>");
 	let backdrop = $("<div></div>");
 	let optionlist = ["Points.", "Price.", "Production."];
 	let descriptiontext = "";
+	let lastMouseMovement = Date.now();
 	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 	let previousOption = ""; // Store the previous filter option
 
+	$(window).mousemove(function () {
+		lastMouseMovement = Date.now();
+	});
+
 	// Create a <div> element for the backdrop
-	// let the backdrop be displayed over everything else
 	backdrop.css({
 		position: "fixed",
 		left: "0px",
@@ -210,7 +222,7 @@ function filter(winesByVariety, winevarietys) {
 		left: "135px",
 		top: "0px",
 		margin: "9px",
-		transform: "translateY(40px)",
+		transform: "translateY(50px)",
 		fontSize: "50px",
 		fontWeight: "bold",
 		color: "white",
@@ -225,7 +237,7 @@ function filter(winesByVariety, winevarietys) {
 		left: "50%",
 		top: "0px",
 		margin: "9px",
-		transform: "translateY(45px)",
+		transform: "translateY(55px)",
 		fontSize: "20px",
 		fontWeight: "Thin",
 		color: "white",
@@ -259,12 +271,37 @@ function filter(winesByVariety, winevarietys) {
 			descriptiontext = getDescriptionText(filteroption);
 			description.html(descriptiontext).animate({ opacity: 1 }, 400);
 		});
+
+		// Update the circles
+		circleArray.forEach((circle) => {
+			circle.updateSaturation(filteroption);
+		});
 	}
 
-	setInterval(updateFilterOption, 3000);
+	/* 
+
+	--------------------------------------
+	--------------------------------------
+	--------------------------------------
+	CHANGE BACK TO CORRECT TIMING LATER ON
+	--------------------------------------
+	--------------------------------------
+	--------------------------------------
+	
+	*/
+
+	setInterval(function () {
+		const timeSinceLastMouseMovement = Date.now() - lastMouseMovement;
+		if (timeSinceLastMouseMovement > 1000) {
+			updateFilterOption();
+		}
+	}, 3000);
 
 	// Set the initial heading text
 	heading.html("Winevarietys in <br> the world by ").append(filterElement);
+
+	dropdown(filterElement, optionlist, filteroption);
+
 	return filteroption;
 }
 
@@ -294,40 +331,38 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		fontFamily: "Neuzeit Grotesk",
 	});
 
-	// Add a image element to the DOM
-	var img = $("<div></div>");
+	// var img = $("<div></div>");
 
-	img.css({
-		position: "fixed",
-		left: "-2%",
-		bottom: "-38%", // Move the image 50% below the bottom of the page
-		width: "560px", // Set the width equal to the width of the bottle image
-		height: "1000px", // Set the height equal to the height of the bottle image
-		background: "url(./bottle.png) no-repeat",
-		backgroundSize: "contain",
-		backgroundPosition: "center bottom", // Adjust the background position if needed
-		transform: "translateX(-50%)", // Center the image horizontally
-		zIndex: "2", // Set a negative z-index to position the image behind the text
-	});
+	// img.css({
+	// 	position: "fixed",
+	// 	left: "-2%",
+	// 	bottom: "-38%", // Move the image 50% below the bottom of the page
+	// 	width: "560px", // Set the width equal to the width of the bottle image
+	// 	height: "1000px", // Set the height equal to the height of the bottle image
+	// 	background: "url(./bottle.png) no-repeat",
+	// 	backgroundSize: "contain",
+	// 	backgroundPosition: "center bottom", // Adjust the background position if needed
+	// 	transform: "translateX(-50%)", // Center the image horizontally
+	// 	zIndex: "2", // Set a negative z-index to position the image behind the text
+	// });
 
-	$("body").append(img);
+	// $("body").append(img);
 
-	window.addEventListener("scroll", function () {
-		var scrollPosition = window.scrollY;
+	// window.addEventListener("scroll", function () {
+	// 	var scrollPosition = window.scrollY;
 
-		if (scrollPosition > 150) {
-			img.css({
-				position: "absolute",
-				bottom: "-55%", // Change the bottom position to "0" gradually
-			});
-			console.log("waaaaaah");
-		} else {
-			img.css({
-				position: "fixed",
-				bottom: "-38%", // Restore the original position
-			});
-		}
-	});
+	// 	if (scrollPosition > 150) {
+	// 		img.css({
+	// 			position: "absolute",
+	// 			bottom: "-55%", // Change the bottom position to "0" gradually
+	// 		});
+	// 	} else {
+	// 		img.css({
+	// 			position: "fixed",
+	// 			bottom: "-38%", // Restore the original position
+	// 		});
+	// 	}
+	// });
 
 	$.each(winevarietys, function (index, value) {
 		let append;
@@ -372,7 +407,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			transform: "translateY(65px)",
 			fontSize: "14px",
 			fontWeight: "bold",
-			color: "white",
+			color: "rgba(255, 255, 255, 0.6)",
 		});
 
 		$("body").append(append);
@@ -431,7 +466,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			top: "0px",
 			fontSize: "14px",
 			fontWeight: "bold",
-			color: "white",
+			color: "rgba(255, 255, 255, 0.6)",
 			transform: "rotate(-90deg)",
 			lineHeight: "22px",
 			paddingLeft: "6px",
@@ -528,9 +563,76 @@ function createCircleForWinevariety(
 		filteroption
 	);
 	circle.createCircle();
+	circleArray.push(circle);
 }
 
 // Map function
 function map(number, inMin, inMax, outMin, outMax) {
 	return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
+
+// Dropdown for the filteroption
+function dropdown(filterElement, optionlist, filteroption) {
+	filterElement.click(function () {
+		// Create a <div> element for the dropdown
+		let dropdown = $("<div></div>");
+
+		// Create a <ul> element for the dropdown
+		let ul = $("<ul></ul>");
+
+		// Create a <li> element for each option in the optionlist
+		optionlist.forEach((option) => {
+			let li = $("<li></li>");
+			li.text(option);
+			li.css({
+				listStyle: "none",
+				padding: "10px",
+				fontSize: "20px",
+				fontWeight: "bold",
+				color: "white",
+			});
+
+			// Append the <li> element to the <ul> element
+			ul.append(li);
+		});
+
+		// Append the <ul> element to the <div> element
+		dropdown.append(ul);
+
+		// Apply CSS properties to the <div> element
+		//let the dropdown be directly under the filteroption
+		dropdown.css({
+			position: "fixed",
+			left: "380px",
+			top: "80px",
+			margin: "9px",
+			transform: "translateY(40px)",
+			backgroundColor: "rgba(50, 50, 50, 0.8)",
+			fontSize: "50px",
+			fontWeight: "bold",
+			color: "white",
+			zIndex: "2",
+		});
+
+		// Append the <div> element to the body
+		$("body").append(dropdown);
+
+		// Animate the dropdown
+		dropdown.animate({ opacity: 0 }, 400, function () {
+			dropdown.animate({ opacity: 1 }, 400);
+		});
+	});
+
+	// Change the filteroption when an option is clicked
+	$("ul").on("click", "li", function () {
+		filteroption = $(this).text();
+	});
+
+	// Remove the dropdown when the mouse is clicked outside of the dropdown
+	$(document).mouseup(function (e) {
+		let container = $("div");
+		if (!container.is(e.target) && container.has(e.target).length === 0) {
+			container.remove();
+		}
+	});
 }
