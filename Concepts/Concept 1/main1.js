@@ -6,6 +6,7 @@
 
 let Wines = { winecolorboxes: null };
 let circleArray = [];
+let filteroption;
 
 $(document).ready(function () {
 	var promise = new Promise(function (resolve, reject) {
@@ -20,15 +21,13 @@ $(document).ready(function () {
 		.then(function (winedata) {
 			let winesByVariety = {};
 			let winevarietys = [];
-			var filteroption;
 			filteroption = filter();
 
 			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
 			draw(winesByVariety, winevarietys, filteroption);
-			dropdown();
 		})
 		.catch(function (error) {
-			console.log("fail " + error);
+			console.log("fail " + error + " | " + error.stack);
 		});
 });
 
@@ -187,14 +186,32 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 }
 
 function filter() {
+	let headingcontainer;
 	let heading = $("<h2></h2>");
 	let description = $("<p></p>");
 	let backdrop = $("<div></div>");
 	let optionlist = ["Points.", "Price.", "Production."];
 	let descriptiontext = "";
+	let filterdropdown = new Dropdown(optionlist, filteroption);
+	console.log(filterdropdown);
+	$("body").append(filterdropdown.html);
 	let lastMouseMovement = Date.now();
 	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 	let previousOption = ""; // Store the previous filter option
+
+	filterdropdown.html.on("click", function () {
+		filteroption = filterdropdown.getSelected();
+		console.log(filteroption);
+
+		// Update the description text
+		descriptiontext = getDescriptionText(filteroption);
+		description.html(descriptiontext);
+
+		// Update the circles
+		circleArray.forEach((circle) => {
+			circle.updateSaturation(filteroption);
+		});
+	});
 
 	$(window).mousemove(function () {
 		lastMouseMovement = Date.now();
@@ -212,7 +229,7 @@ function filter() {
 		zIndex: "1",
 		backdropFilter: "blur(10px)",
 		borderRadius: "10px 10px 0 0",
-		boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.8)",
+		boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.8)",
 	});
 
 	$("body").append(backdrop);
@@ -229,26 +246,25 @@ function filter() {
 		zIndex: "2",
 	});
 
+	//heading.append(filterdropdown.html);
 	$("body").append(heading);
 
 	// Create a <p> element for the description
 	description.css({
 		position: "fixed",
-		left: "50%",
+		left: "60%",
+		right: "5%",
 		top: "0px",
 		margin: "9px",
-		transform: "translateY(55px)",
-		fontSize: "20px",
-		fontWeight: "Thin",
+		transform: "translateY(57px)",
+		fontSize: "17px",
+		fontWeight: "thin",
 		color: "white",
 		zIndex: "2",
 	});
 
 	// Append the description to the body
 	$("body").append(description);
-
-	// Create a <u> element for the filteroption
-	let filterElement = $("<u></u>").appendTo(heading);
 
 	function updateFilterOption() {
 		// Get a random word from the optionlist
@@ -259,11 +275,6 @@ function filter() {
 
 		// Update the previous option
 		previousOption = filteroption;
-		// Animate the filteroption change
-		filterElement.animate({ opacity: 0 }, 400, function () {
-			// Update the filteroption text
-			filterElement.text(filteroption).animate({ opacity: 1 }, 400);
-		});
 
 		// Animate the description change
 		description.animate({ opacity: 0 }, 400, function () {
@@ -276,31 +287,24 @@ function filter() {
 		circleArray.forEach((circle) => {
 			circle.updateSaturation(filteroption);
 		});
+
+		// TODO #1
+		filterdropdown.updateLabel(filteroption);
 	}
-
-	/* 
-
-	--------------------------------------
-	--------------------------------------
-	--------------------------------------
-	CHANGE BACK TO CORRECT TIMING LATER ON
-	--------------------------------------
-	--------------------------------------
-	--------------------------------------
-	
-	*/
 
 	setInterval(function () {
 		const timeSinceLastMouseMovement = Date.now() - lastMouseMovement;
-		if (timeSinceLastMouseMovement > 1000) {
+		if (timeSinceLastMouseMovement > 8000) {
 			updateFilterOption();
 		}
 	}, 3000);
 
-	// Set the initial heading text
-	heading.html("Winevarietys in <br> the world by ").append(filterElement);
+	$(document).ready(function () {
+		updateFilterOption();
+	});
 
-	dropdown(filterElement, optionlist, filteroption);
+	// Set the initial heading text
+	heading.html("Winevarietys in <br> the world by ");
 
 	return filteroption;
 }
@@ -313,7 +317,7 @@ function getDescriptionText(filteroption) {
 		case "Price.":
 			return "This average represents the typical price range of wine varieties produced in each country. The saturation level corresponds to the wine's price. <br> As the price increases, the color saturation becomes more pronounced, indicating a higher value.";
 		case "Production.":
-			return "This represents the total quantity of wine produced for each wine variety in every country. The color saturation is determined by the production level of the wine. <br> The more wine produced, the more intense the color saturation becomes, indicating higher production volume.";
+			return "This represents the total quantity of wine produced for each wine variety in every country. The color saturation is determined by the production<br>level of the wine. The more wine produced, the more intense the color saturation becomes, indicating higher production volume.";
 		default:
 			return "What in god's name were you doing to get this displayed?";
 	}
@@ -323,46 +327,7 @@ function getDescriptionText(filteroption) {
 function draw(winesByVariety, winevarietys, filteroption) {
 	let elementPositions = [];
 	let winecolorboxcolor = "white";
-	// let winecolorboxes = {};
 	Wines.winecolorboxes = {};
-
-	// change the fontfamily of the body to a installed font
-	$("body").css({
-		fontFamily: "Neuzeit Grotesk",
-	});
-
-	// var img = $("<div></div>");
-
-	// img.css({
-	// 	position: "fixed",
-	// 	left: "-2%",
-	// 	bottom: "-38%", // Move the image 50% below the bottom of the page
-	// 	width: "560px", // Set the width equal to the width of the bottle image
-	// 	height: "1000px", // Set the height equal to the height of the bottle image
-	// 	background: "url(./bottle.png) no-repeat",
-	// 	backgroundSize: "contain",
-	// 	backgroundPosition: "center bottom", // Adjust the background position if needed
-	// 	transform: "translateX(-50%)", // Center the image horizontally
-	// 	zIndex: "2", // Set a negative z-index to position the image behind the text
-	// });
-
-	// $("body").append(img);
-
-	// window.addEventListener("scroll", function () {
-	// 	var scrollPosition = window.scrollY;
-
-	// 	if (scrollPosition > 150) {
-	// 		img.css({
-	// 			position: "absolute",
-	// 			bottom: "-55%", // Change the bottom position to "0" gradually
-	// 		});
-	// 	} else {
-	// 		img.css({
-	// 			position: "fixed",
-	// 			bottom: "-38%", // Restore the original position
-	// 		});
-	// 	}
-	// });
 
 	$.each(winevarietys, function (index, value) {
 		let append;
@@ -569,70 +534,4 @@ function createCircleForWinevariety(
 // Map function
 function map(number, inMin, inMax, outMin, outMax) {
 	return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-}
-
-// Dropdown for the filteroption
-function dropdown(filterElement, optionlist, filteroption) {
-	filterElement.click(function () {
-		// Create a <div> element for the dropdown
-		let dropdown = $("<div></div>");
-
-		// Create a <ul> element for the dropdown
-		let ul = $("<ul></ul>");
-
-		// Create a <li> element for each option in the optionlist
-		optionlist.forEach((option) => {
-			let li = $("<li></li>");
-			li.text(option);
-			li.css({
-				listStyle: "none",
-				padding: "10px",
-				fontSize: "20px",
-				fontWeight: "bold",
-				color: "white",
-			});
-
-			// Append the <li> element to the <ul> element
-			ul.append(li);
-		});
-
-		// Append the <ul> element to the <div> element
-		dropdown.append(ul);
-
-		// Apply CSS properties to the <div> element
-		//let the dropdown be directly under the filteroption
-		dropdown.css({
-			position: "fixed",
-			left: "380px",
-			top: "80px",
-			margin: "9px",
-			transform: "translateY(40px)",
-			backgroundColor: "rgba(50, 50, 50, 0.8)",
-			fontSize: "50px",
-			fontWeight: "bold",
-			color: "white",
-			zIndex: "2",
-		});
-
-		// Append the <div> element to the body
-		$("body").append(dropdown);
-
-		// Animate the dropdown
-		dropdown.animate({ opacity: 0 }, 400, function () {
-			dropdown.animate({ opacity: 1 }, 400);
-		});
-	});
-
-	// Change the filteroption when an option is clicked
-	$("ul").on("click", "li", function () {
-		filteroption = $(this).text();
-	});
-
-	// Remove the dropdown when the mouse is clicked outside of the dropdown
-	$(document).mouseup(function (e) {
-		let container = $("div");
-		if (!container.is(e.target) && container.has(e.target).length === 0) {
-			container.remove();
-		}
-	});
 }
