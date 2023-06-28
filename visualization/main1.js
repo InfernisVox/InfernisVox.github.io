@@ -1,5 +1,4 @@
 /*TODO:
-	- Make filteroption dropown work
 	- Make a variety sorting dropdown
 	- Change gradient of circles based on filteroption
 */
@@ -7,6 +6,7 @@
 let Wines = { winecolorboxes: null };
 let circleArray = [];
 let filteroption;
+let sortingoption;
 
 $(document).ready(function () {
 	var promise = new Promise(function (resolve, reject) {
@@ -181,8 +181,6 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 			}
 		}
 	}
-
-	console.log(winesByVariety);
 }
 
 function filter() {
@@ -190,10 +188,25 @@ function filter() {
 	let heading = $("<h2></h2>");
 	let description = $("<p></p>");
 	let backdrop = $("<div></div>");
-	let optionlist = ["Points.", "Price.", "Production."];
+	let optionlist = ["Points.", "Price.", "Production.", "Jens", "Ron"];
+	let sortinglist = [
+		"Most varietys.",
+		"Least varietys.",
+		"Best wines overall",
+		"Worst wines overall.",
+		"Highest prices.",
+		"Lowest prices.",
+	];
 	let descriptiontext = "";
 	let filterdropdown = new Dropdown(optionlist, filteroption);
-	console.log(filterdropdown);
+	let sortingdropdown = new Dropdown(sortinglist, sortingoption);
+
+	let id = filterdropdown.id;
+
+	$(`${this.id} .anchor-option`).each((index, element) => {
+		$(element).on("click", () => console.log("Hallo"));
+	});
+
 	$("body").append(filterdropdown.html);
 	let lastMouseMovement = Date.now();
 	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist

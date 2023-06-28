@@ -153,10 +153,12 @@ class CircleForWineVariety {
 						},
 						"fast"
 					)
-					.css(
-						"background-color",
-						"hsl(15," + self.saturation + "%, 50%)"
-					); // Use 'self' instead of 'this'
+					.css({
+						"background-color": self.saturation
+							? "hsl(15," + self.saturation + "%, 25%)" // Apply the desaturated color if the saturation value is valid
+							: "", // If saturation is not valid, keep the original background color
+						border: self.saturation ? "2px solid white" : "", // Add white border only if the saturation value is valid
+					}); // Use 'self' instead of 'this'
 
 				// Get the position of the hovered circle
 				let circlePosition = $(this).position();
@@ -224,10 +226,11 @@ class CircleForWineVariety {
 						},
 						"fast"
 					)
-					.css(
-						"background-color",
-						"hsl(15," + self.saturation + "%, 50%)"
-					); // Use 'self' instead of 'this'
+					.css({
+						"background-color":
+							"hsl(15," + self.saturation + "%, 50%)", // Use the original saturation value
+						border: "none", // Remove the border
+					}); // Use 'self' instead of 'this'
 
 				// Remove the black box from the DOM
 				$("#black-box").remove();

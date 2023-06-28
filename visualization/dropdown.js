@@ -1,5 +1,5 @@
 class Dropdown {
-	constructor(options, label = " ") {
+	constructor(options, label = " ", objStyling) {
 		const [linkA, linkB, linkC] = options;
 
 		this.html = $(
