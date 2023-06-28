@@ -21,9 +21,7 @@ body {
 .dropdown {
 	position: fixed;
 	display: inline-block;
-	left: 450px;
 	position: fixed;
-	top: 115px;
 }
 
 .dropdown-content {

@@ -1,24 +1,32 @@
 class Dropdown {
-	constructor(options, label = " ", objStyling) {
-		const [linkA, linkB, linkC] = options;
+	constructor(options, label = " ", pos, fontsize) {
+		// Create an empty string to store the options HTML
+		let optionsHTML = "";
 
+		// Loop through the options array and append an anchor element for each option
+		options.forEach((option) => {
+			// If the option matches the label, add the "selected" class to it
+			if (option === label) {
+				optionsHTML += `<a class="selected" id="option-${option}" data-value="${option}" href="#">${option}</a>`;
+			} else {
+				// Otherwise, just add the option without the "selected" class
+				optionsHTML += `<a id="option-${option}" data-value="${option}" href="#">${option}</a>`;
+			}
+		});
+
+		// Create a jQuery object with the dropdown HTML, using the optionsHTML and the label
 		this.html = $(
 			`
-                <div class="dropdown" style="z-index: 1000;">
-                <button class="dropbtn">${label}</button>
-                    <div class="dropdown-content">
-                        <a id="option-price" data-value=${linkA} href="#">${linkA}</a>
-                        <a id="option-points" data-value=${linkB} href="#">${linkB}</a>
-                        <a id="option-production" data-value=${linkC} href="#">${linkC}</a>
-                    </div>
-                </div>
-                `
+	        <div class="dropdown" style="z-index: 1000; position: fixed; left: ${pos.x}px; top: ${pos.y}px;">
+	        <button class="dropbtn" style="font-size: ${fontsize}px;">${label}</button>
+	            <div class="dropdown-content">
+				${optionsHTML}
+	            </div>
+	        </div>
+	        `
 		);
 
-		this.htmlLinkA = this.html.find("#option-price");
-		this.htmlLinkB = this.html.find("#option-points");
-		this.htmlLinkC = this.html.find("#option-production");
-
+		// Initialize the click event handler for the options
 		this.initClick();
 	}
 
@@ -37,14 +45,25 @@ class Dropdown {
 	}
 
 	updateLabel(label) {
+		// Find the button element within the "html" container and update its text and font size
 		this.html.find(".dropbtn").text(label);
 	}
 
 	initClick() {
-		[this.htmlLinkA, this.htmlLinkB, this.htmlLinkC].forEach((link) => {
+		// Find all the anchor elements within the "html" container and loop through them
+		this.html.find("a").each((index, element) => {
+			// Convert each element to a jQuery object
+			let link = $(element);
+
+			// Add a click event handler to each link
 			link.click((_) => {
-				$(".selected").removeClass("selected");
+				// Remove the "selected" class from any other link
+				this.html.find(".selected").removeClass("selected");
+
+				// Add the "selected" class to the clicked link
 				link.addClass("selected");
+
+				// Update the label with the value of the clicked link
 				this.updateLabel(link.attr("data-value"));
 			});
 		});

@@ -21,9 +21,9 @@ $(document).ready(function () {
 		.then(function (winedata) {
 			let winesByVariety = {};
 			let winevarietys = [];
+			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
 			filteroption = filter();
 
-			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
 			draw(winesByVariety, winevarietys, filteroption);
 		})
 		.catch(function (error) {
@@ -184,37 +184,49 @@ function winesByCountryAndVariety(winedata, winesByVariety, winevarietys) {
 }
 
 function filter() {
-	let headingcontainer;
 	let heading = $("<h2></h2>");
 	let description = $("<p></p>");
 	let backdrop = $("<div></div>");
-	let optionlist = ["Points.", "Price.", "Production.", "Jens", "Ron"];
+	let sortingtext = $("<p></p>");
+	let optionlist = ["Points.", "Price.", "Production."];
 	let sortinglist = [
 		"Most varietys.",
 		"Least varietys.",
-		"Best wines overall",
+		"Best wines overall.",
 		"Worst wines overall.",
 		"Highest prices.",
 		"Lowest prices.",
 	];
 	let descriptiontext = "";
-	let filterdropdown = new Dropdown(optionlist, filteroption);
-	let sortingdropdown = new Dropdown(sortinglist, sortingoption);
+	sortingoption = sortinglist[0];
+	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 
-	let id = filterdropdown.id;
-
-	$(`${this.id} .anchor-option`).each((index, element) => {
-		$(element).on("click", () => console.log("Hallo"));
-	});
+	let filterdropdown = new Dropdown(
+		optionlist,
+		filteroption,
+		{
+			x: 452,
+			y: 115,
+		},
+		50
+	);
+	let sortingdropdown = new Dropdown(
+		sortinglist,
+		sortingoption,
+		{
+			x: 142,
+			y: 273,
+		},
+		17
+	);
 
 	$("body").append(filterdropdown.html);
+	$("body").append(sortingdropdown.html);
 	let lastMouseMovement = Date.now();
-	filteroption = optionlist[0]; // Initialize filteroption with the first word from the optionlist
 	let previousOption = ""; // Store the previous filter option
 
 	filterdropdown.html.on("click", function () {
 		filteroption = filterdropdown.getSelected();
-		console.log(filteroption);
 
 		// Update the description text
 		descriptiontext = getDescriptionText(filteroption);
@@ -228,6 +240,91 @@ function filter() {
 
 	$(window).mousemove(function () {
 		lastMouseMovement = Date.now();
+	});
+
+	sortingdropdown.html.on("click", function () {
+		switch (sortingoption) {
+			case "Most varietys.":
+				winesByVariety = Object.keys(winesByVariety)
+					.sort(function (a, b) {
+						return (
+							Object.keys(winesByVariety[b]).length -
+							Object.keys(winesByVariety[a]).length
+						);
+					})
+					.reduce(function (result, key) {
+						result[key] = winesByVariety[key];
+						return result;
+					}, {});
+				break;
+			case "Least varietys.":
+				winesByVariety = Object.keys(winesByVariety)
+					.sort(function (a, b) {
+						return (
+							Object.keys(winesByVariety[a]).length -
+							Object.keys(winesByVariety[b]).length
+						);
+					})
+					.reduce(function (result, key) {
+						result[key] = winesByVariety[key];
+						return result;
+					}, {});
+				break;
+			case "Best wines overall.":
+				winesByVariety = Object.keys(winesByVariety)
+					.sort(function (a, b) {
+						return (
+							winesByVariety[b].points - winesByVariety[a].points
+						);
+					})
+					.reduce(function (result, key) {
+						result[key] = winesByVariety[key];
+						return result;
+					}, {});
+				break;
+			case "Worst wines overall.":
+				winesByVariety = Object.keys(winesByVariety)
+					.sort(function (a, b) {
+						return (
+							winesByVariety[a].points - winesByVariety[b].points
+						);
+					})
+					.reduce(function (result, key) {
+						result[key] = winesByVariety[key];
+						return result;
+					}, {});
+				break;
+			case "Highest prices.":
+				winesByVariety = Object.keys(winesByVariety)
+					.sort(function (a, b) {
+						return (
+							winesByVariety[b].price - winesByVariety[a].price
+						);
+					})
+					.reduce(function (result, key) {
+						result[key] = winesByVariety[key];
+						return result;
+					}, {});
+				break;
+			case "Lowest prices.":
+				console.log("test");
+				winesByVariety = Object.keys(winesByVariety)
+					.sort(function (a, b) {
+						return (
+							winesByVariety[a].price - winesByVariety[b].price
+						);
+					})
+					.reduce(function (result, key) {
+						result[key] = winesByVariety[key];
+						return result;
+					}, {});
+				console.log(winesByVariety);
+				break;
+			default:
+				console.log(
+					"What in god's name were you doing to get this displayed?"
+				);
+		}
 	});
 
 	// Create a <div> element for the backdrop
@@ -261,6 +358,21 @@ function filter() {
 
 	//heading.append(filterdropdown.html);
 	$("body").append(heading);
+
+	sortingtext.css({
+		position: "fixed",
+		left: "137px",
+		top: "237px",
+		margin: "9px",
+		fontSize: "17px",
+		fontWeight: "bold",
+		color: "white",
+		zIndex: "2",
+	});
+
+	sortingtext.text("Sort countrys by");
+
+	$("body").append(sortingtext);
 
 	// Create a <p> element for the description
 	description.css({
@@ -524,7 +636,6 @@ function draw(winesByVariety, winevarietys, filteroption) {
 	});
 
 	$("body").append(footer);
-	console.log(filteroption);
 }
 
 // Function for creating the circles for each winevariety
