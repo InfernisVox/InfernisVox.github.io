@@ -457,6 +457,13 @@ function draw(winesByVariety, winevarietys, filteroption) {
 	let winecolorboxcolor = "white";
 	Wines.winecolorboxes = {};
 
+	//change the color of the entire page to a gradient
+	$("body").css({
+		backgroundImage:
+			"linear-gradient(-30deg, rgba(8, 1, 1, 1),rgba(23, 15, 15, 1))",
+		backgroundAttachment: "fixed", //this will make the gradient stay in place when scrolling
+	});
+
 	$.each(winevarietys, function (index, value) {
 		let append;
 		let kml;
