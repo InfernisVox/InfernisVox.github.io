@@ -2,6 +2,10 @@
 	opacity: 0;
 }
 
+.hover {
+	filter: brightness(60%); /* Adjust the percentage to darken the color */
+}
+
 body {
 	overflow-x: hidden; /* Disable vertical scrolling */
 	background-color: #130c0c;
@@ -50,4 +54,9 @@ body {
 
 .dropdown:hover .dropbtn {
 	background-color: rgba(20, 20, 20);
+}
+
+.country-container,
+.country-label {
+	transition: left 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53);
 }

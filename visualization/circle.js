@@ -29,8 +29,8 @@ class CircleForWineVariety {
 			borderRadius: "50%",
 			backgroundColor: "hsl(15," + this.saturation + "%, 50%)",
 			position: "absolute",
-			left: 350 + this.count * 30.5 + "px",
-			top: 8.5 + this.element.top,
+			left: 0,
+			top: this.element.top,
 			transform: "translate(-50%, -50%)",
 		});
 
@@ -40,7 +40,19 @@ class CircleForWineVariety {
 		// Add the class 'wine-circle' to the circle
 		this.circle.addClass("wine-circle");
 
-		$("body").append(this.circle);
+		let countryContainer = $(".country-container." + this.country);
+		if (countryContainer.length === 0) {
+			countryContainer = $("<div></div>");
+			countryContainer.addClass("country-container");
+			countryContainer.addClass(this.country);
+			countryContainer.css({
+				position: "absolute",
+				left: 350 + this.count * 30.5 + "px",
+				top: 8.5,
+			});
+			$("body").append(countryContainer);
+		}
+		$(countryContainer).append(this.circle);
 
 		this.addHoverBehavior();
 
@@ -66,9 +78,9 @@ class CircleForWineVariety {
 
 	updateSaturation(filterOption) {
 		this.filterOption = filterOption;
-		if (this.element.variety in this.winesByVariety[this.country]) {
-			let previousSaturation = this.saturation; // Store the previous saturation value
+		let color;
 
+		if (this.element.variety in this.winesByVariety[this.country]) {
 			switch (this.filterOption) {
 				case "Points.":
 					this.saturation = Math.round(
@@ -86,6 +98,9 @@ class CircleForWineVariety {
 							100) *
 							255
 					);
+
+					color = "hsl(14," + this.saturation + "%, 47%)";
+
 					break;
 				case "Price.":
 					this.saturation = Math.round(
@@ -103,6 +118,9 @@ class CircleForWineVariety {
 							100) *
 							255
 					);
+
+					color = "hsl(0," + this.saturation + "%, 41%)";
+
 					break;
 				case "Production.":
 					this.saturation = Math.round(
@@ -120,22 +138,23 @@ class CircleForWineVariety {
 							100) *
 							255
 					);
+
+					color = "hsl(32," + this.saturation + "%, 44%)";
+
 					break;
 			}
 
-			// Interpolate between the previous color and the new color
-			let interval = 10; // Number of steps for the interpolation
-			let step = (this.saturation - previousSaturation) / interval;
+			// Smoothly transition the color using CSS transition or animation
+			this.circle.css({
+				transition: "background-color 0.5s ease",
+				backgroundColor: color,
+			});
 
-			// Update the color gradually
-			let currentSaturation = previousSaturation;
-			for (let i = 0; i < interval; i++) {
-				setTimeout(() => {
-					currentSaturation += step;
-					let color = "hsl(15," + currentSaturation + "%, 50%)";
-					this.circle.css("background-color", color);
-				}, i * 100); // Delay each step by 50 milliseconds
-			}
+			// Clear the transition after a delay to allow the color change
+			// to take effect before removing the transition
+			setTimeout(() => {
+				this.circle.css("transition", "");
+			}, 500);
 		}
 	}
 
@@ -154,29 +173,30 @@ class CircleForWineVariety {
 						"fast"
 					)
 					.css({
-						"background-color": self.saturation
-							? "hsl(15," + self.saturation + "%, 25%)" // Apply the desaturated color if the saturation value is valid
-							: "", // If saturation is not valid, keep the original background color
 						border: self.saturation ? "2px solid white" : "", // Add white border only if the saturation value is valid
-					}); // Use 'self' instead of 'this'
+					})
+					.addClass("hover");
 
 				// Get the position of the hovered circle
 				let circlePosition = $(this).position();
+				let containerPosition = $(
+					".country-container." + self.country
+				).position();
 
 				// Create the black box and add it to the DOM
 				let blackBox = $("<div></div>");
 				blackBox.attr("id", "black-box");
 				blackBox.css({
 					position: "absolute",
-					left: circlePosition.left - 210 + "px",
-					top: circlePosition.top + "px",
+					left: containerPosition.left - 220 + "px",
+					top: circlePosition.top + 5 + "px",
 					width: "180",
 					height: "auto",
 					backgroundColor: "black",
 					color: "white",
 					padding: "10px",
 					borderRadius: "5px",
-					zIndex: 10,
+					zIndex: 1,
 				});
 
 				var text =
@@ -227,10 +247,9 @@ class CircleForWineVariety {
 						"fast"
 					)
 					.css({
-						"background-color":
-							"hsl(15," + self.saturation + "%, 50%)", // Use the original saturation value
-						border: "none", // Remove the border
-					}); // Use 'self' instead of 'this'
+						border: self.saturation ? "0px solid white" : "", // Add white border only if the saturation value is valid
+					})
+					.removeClass("hover"); // Use 'self' instead of 'this'
 
 				// Remove the black box from the DOM
 				$("#black-box").remove();
@@ -241,19 +260,23 @@ class CircleForWineVariety {
 	createDescriptionBox() {
 		const self = this;
 		const circlePosition = this.circle.position();
+		const containerPosition = $(
+			".country-container." + this.country
+		).position();
 
 		this.descriptionBox = $("<div></div>");
 		this.descriptionBox.attr("id", "description-box");
 		this.descriptionBox.css({
 			position: "absolute",
-			left: circlePosition.left + this.circle.outerWidth() + 10 + "px",
-			top: circlePosition.top + "px",
+			left:
+				containerPosition.left + this.circle.outerWidth() - 12.5 + "px",
+			top: circlePosition.top + 10 + "px",
 			width: "200px",
 			height: "auto",
 			backgroundColor: "white",
 			padding: "10px",
 			borderRadius: "5px",
-			zIndex: 10,
+			zIndex: 1,
 		});
 
 		const descriptionText =

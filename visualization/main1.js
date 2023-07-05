@@ -1,12 +1,8 @@
-/*TODO:
-	- Make a variety sorting dropdown
-	- Change gradient of circles based on filteroption
-*/
-
 let Wines = { winecolorboxes: null };
 let circleArray = [];
 let filteroption;
 let sortingoption;
+let winesByVariety = {};
 
 $(document).ready(function () {
 	var promise = new Promise(function (resolve, reject) {
@@ -19,7 +15,6 @@ $(document).ready(function () {
 
 	promise
 		.then(function (winedata) {
-			let winesByVariety = {};
 			let winevarietys = [];
 			winesByCountryAndVariety(winedata, winesByVariety, winevarietys);
 			filteroption = filter();
@@ -225,6 +220,9 @@ function filter() {
 	let lastMouseMovement = Date.now();
 	let previousOption = ""; // Store the previous filter option
 
+	const avgof = (arr) =>
+		arr.reduce((acc, curr) => (acc += curr), 0) / arr.length;
+
 	filterdropdown.html.on("click", function () {
 		filteroption = filterdropdown.getSelected();
 
@@ -243,82 +241,85 @@ function filter() {
 	});
 
 	sortingdropdown.html.on("click", function () {
+		sortingoption = sortingdropdown.getSelected();
+		console.log(winesByVariety);
 		switch (sortingoption) {
 			case "Most varietys.":
-				winesByVariety = Object.keys(winesByVariety)
-					.sort(function (a, b) {
-						return (
-							Object.keys(winesByVariety[b]).length -
-							Object.keys(winesByVariety[a]).length
-						);
-					})
-					.reduce(function (result, key) {
-						result[key] = winesByVariety[key];
-						return result;
-					}, {});
+				winesByVariety = Object.fromEntries(
+					Object.entries(winesByVariety).sort(
+						([countryA, objA], [countryB, objB]) =>
+							Object.keys(objB).length - Object.keys(objA).length
+					)
+				);
+				console.log(winesByVariety);
+				rearrangeCollumns(winesByVariety);
 				break;
 			case "Least varietys.":
-				winesByVariety = Object.keys(winesByVariety)
-					.sort(function (a, b) {
-						return (
-							Object.keys(winesByVariety[a]).length -
-							Object.keys(winesByVariety[b]).length
-						);
-					})
-					.reduce(function (result, key) {
-						result[key] = winesByVariety[key];
-						return result;
-					}, {});
+				console.log("test");
+				winesByVariety = Object.fromEntries(
+					Object.entries(winesByVariety).sort(
+						([countryA, objA], [countryB, objB]) =>
+							Object.keys(objA).length - Object.keys(objB).length
+					)
+				);
+				console.log(winesByVariety);
+				rearrangeCollumns(winesByVariety);
 				break;
 			case "Best wines overall.":
-				winesByVariety = Object.keys(winesByVariety)
-					.sort(function (a, b) {
-						return (
-							winesByVariety[b].points - winesByVariety[a].points
-						);
-					})
-					.reduce(function (result, key) {
-						result[key] = winesByVariety[key];
-						return result;
-					}, {});
+				winesByVariety = Object.fromEntries(
+					Object.entries(winesByVariety)
+						.map(([country, obj]) => [
+							country,
+							obj,
+							avgof(Object.values(obj).map((obj) => obj.points)),
+						])
+						.sort(([, , avgA], [, , avgB]) => avgB - avgA)
+				);
+
+				console.log(winesByVariety);
+				rearrangeCollumns(winesByVariety);
 				break;
 			case "Worst wines overall.":
-				winesByVariety = Object.keys(winesByVariety)
-					.sort(function (a, b) {
-						return (
-							winesByVariety[a].points - winesByVariety[b].points
-						);
-					})
-					.reduce(function (result, key) {
-						result[key] = winesByVariety[key];
-						return result;
-					}, {});
+				winesByVariety = Object.fromEntries(
+					Object.entries(winesByVariety)
+						.map(([country, obj]) => [
+							country,
+							obj,
+							avgof(Object.values(obj).map((obj) => obj.points)),
+						])
+						.sort(([, , avgA], [, , avgB]) => avgA - avgB)
+				);
+
+				console.log(winesByVariety);
+				rearrangeCollumns(winesByVariety);
 				break;
 			case "Highest prices.":
-				winesByVariety = Object.keys(winesByVariety)
-					.sort(function (a, b) {
-						return (
-							winesByVariety[b].price - winesByVariety[a].price
-						);
-					})
-					.reduce(function (result, key) {
-						result[key] = winesByVariety[key];
-						return result;
-					}, {});
+				winesByVariety = Object.fromEntries(
+					Object.entries(winesByVariety)
+						.map(([country, obj]) => [
+							country,
+							obj,
+							avgof(Object.values(obj).map((obj) => obj.price)),
+						])
+						.sort(([, , avgA], [, , avgB]) => avgB - avgA)
+				);
+
+				console.log(winesByVariety);
+				rearrangeCollumns(winesByVariety);
 				break;
 			case "Lowest prices.":
-				console.log("test");
-				winesByVariety = Object.keys(winesByVariety)
-					.sort(function (a, b) {
-						return (
-							winesByVariety[a].price - winesByVariety[b].price
-						);
-					})
-					.reduce(function (result, key) {
-						result[key] = winesByVariety[key];
-						return result;
-					}, {});
+				winesByVariety = Object.fromEntries(
+					Object.entries(winesByVariety)
+						.map(([country, obj]) => [
+							country,
+							obj,
+							avgof(Object.values(obj).map((obj) => obj.price)),
+						])
+						.sort(([, , avgA], [, , avgB]) => avgA - avgB)
+				);
+
 				console.log(winesByVariety);
+				rearrangeCollumns(winesByVariety);
 				break;
 			default:
 				console.log(
@@ -336,7 +337,7 @@ function filter() {
 		height: "307px",
 		backgroundImage:
 			"linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))",
-		zIndex: "1",
+		zIndex: "20",
 		backdropFilter: "blur(10px)",
 		borderRadius: "10px 10px 0 0",
 		boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.8)",
@@ -353,7 +354,7 @@ function filter() {
 		fontSize: "50px",
 		fontWeight: "bold",
 		color: "white",
-		zIndex: "2",
+		zIndex: "21",
 	});
 
 	//heading.append(filterdropdown.html);
@@ -367,7 +368,7 @@ function filter() {
 		fontSize: "17px",
 		fontWeight: "bold",
 		color: "white",
-		zIndex: "2",
+		zIndex: "21",
 	});
 
 	sortingtext.text("Sort countrys by");
@@ -385,7 +386,7 @@ function filter() {
 		fontSize: "17px",
 		fontWeight: "thin",
 		color: "white",
-		zIndex: "2",
+		zIndex: "21",
 	});
 
 	// Append the description to the body
@@ -393,6 +394,8 @@ function filter() {
 
 	function updateFilterOption() {
 		// Get a random word from the optionlist
+		console.log(sortingoption);
+
 		do {
 			filteroption =
 				optionlist[Math.floor(Math.random() * optionlist.length)];
@@ -419,7 +422,7 @@ function filter() {
 
 	setInterval(function () {
 		const timeSinceLastMouseMovement = Date.now() - lastMouseMovement;
-		if (timeSinceLastMouseMovement > 8000) {
+		if (timeSinceLastMouseMovement > 20000) {
 			updateFilterOption();
 		}
 	}, 3000);
@@ -541,8 +544,6 @@ function draw(winesByVariety, winevarietys, filteroption) {
 
 		append.text(index);
 
-		append.addClass("countryLabel");
-
 		div.css({
 			position: "absolute",
 			left: count * 30.5 + "px",
@@ -550,6 +551,8 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			marginRight: "8.5px",
 		});
 		count++;
+
+		div.addClass("country-label");
 
 		// let the elements be alligned to the x of the circles underneath
 		append.css({
@@ -561,6 +564,9 @@ function draw(winesByVariety, winevarietys, filteroption) {
 			lineHeight: "22px",
 			paddingLeft: "6px",
 		});
+
+		// append.addClass("country-label");
+		append.attr("data-country", index);
 
 		// append the <p> element to the container
 		div.append(append);
@@ -580,7 +586,7 @@ function draw(winesByVariety, winevarietys, filteroption) {
 		whiteSpace: "nowrap",
 		overflowX: "auto",
 		overflowY: "hidden",
-		zIndex: "2",
+		zIndex: "21",
 	});
 
 	// append the container to the body
@@ -658,4 +664,29 @@ function createCircleForWinevariety(
 // Map function
 function map(number, inMin, inMax, outMin, outMax) {
 	return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
+
+function rearrangeCollumns(winesByVariety) {
+	// rearrange the container elements holding the circles based on the new order of winesByVariety
+	/* let container = $(".country-container");
+	let count = 0;
+
+	$.each(winesByVariety, function (index, value) {
+		container[count].style.left = 350 + count * 30.5 + "px";
+		count++;
+	});*/
+	let containers = $(".country-container");
+
+	let count = 0;
+	for (let prop in winesByVariety) {
+		$(`.${prop}`).css({
+			left: 350 + count * 30.5 + "px",
+		});
+		$(`[data-country="${prop}"]`)
+			.parent()
+			.css({
+				left: count * 30.5 + "px",
+			});
+		count++;
+	}
 }
